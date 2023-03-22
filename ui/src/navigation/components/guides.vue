@@ -56,9 +56,7 @@
           Open Issue
         </VButton>
 
-        <p class="fs-3 mt-3">
-          Enjoy using Motor Admin?
-        </p>
+       
         <VButton
           :to="'https://github.com/motor-admin/motor-admin-rails/stargazers'"
           target="_blank"

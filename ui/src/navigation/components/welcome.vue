@@ -4,10 +4,10 @@
     class="text-center"
   >
     <p class="fs-1 fw-bold mb-3 text-center">
-      👋 Welcome to Motor Admin
+      👋 Welcome to Admin
     </p>
     <p class="fs-4 mb-4">
-      Motor Admin allows to create a powerful admin panel with writing less code.
+      Admin panel.
     </p>
 
     <VButton
