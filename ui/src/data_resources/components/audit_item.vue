@@ -147,7 +147,7 @@ export default {
 
             this.$emit('revert', result.data.data)
           }).catch((error) => {
-            console.error(error)
+            console.log(error)
 
             this.$Message.error(`${this.i18n.action_has_failed_with_code} ${error.response.status}`)
           })

@@ -275,7 +275,7 @@ export default {
       }
     },
     isEditable () {
-      return this.editable && this.column.access_type === 'read_write'
+      return this.editable && (this.column.access_type === 'read_write' || this.isActiveStorage)
     },
     columnType () {
       return this.column.column_type
@@ -291,7 +291,7 @@ export default {
     },
     polymorphicModel () {
       if (this.column.reference?.polymorphic) {
-        const polymorphicName = this.resource[this.column.reference.foreign_key.replace(/_id$/, '_type')]
+        const polymorphicName = this.resource[this.column.reference.name + '_type']
 
         return modelNameMap[underscore(polymorphicName).replace(/:{2}/g, '/')]
       } else {

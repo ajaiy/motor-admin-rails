@@ -43,7 +43,6 @@
     ref="cell"
     :value="value"
     :format="format"
-    :with-filter-button="isTable"
     @tag-click="$emit('tag-click', $event)"
   />
   <DataImage
@@ -166,11 +165,6 @@ export default {
       required: false,
       default: () => ({})
     },
-    isTable: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
     textTruncate: {
       type: Boolean,
       required: false,
@@ -216,7 +210,7 @@ export default {
       return this.type === 'chart'
     },
     isImage () {
-      return this.type === 'image' || (this.isPath && !!this.stringValue.match(/\.(jpg|png|jpeg|webp|svg|gif|heic|heif)$/i))
+      return this.type === 'image' || (this.isPath && !!this.stringValue.match(/\.(jpg|png|jpeg|webp|svg|gif)$/i))
     },
     isAudio () {
       return this.type === 'audio' || (this.isPath && !!this.stringValue.match(/\.(mp3|ogg|wav|aif)$/i))
