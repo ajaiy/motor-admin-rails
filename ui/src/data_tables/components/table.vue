@@ -18,7 +18,7 @@
             v-if="withSelect && columns.length"
             class="ivu-table-column ivu-table-column-center"
             :class="{ 'border-top' : !borderless && headerBorder }"
-            :style="{ position: 'sticky', top: 0, left: 0, zIndex: 1 }"
+            :style="{ position: 'sticky', top: 0, left: 0, zIndex: 2 }"
           >
             <div class="ivu-table-cell ivu-table-cell-with-selection">
               <Checkbox
@@ -42,10 +42,16 @@
             v-if="renderActions"
             class="ivu-table-column ivu-table-column-center"
             :class="{ 'border-top' : !borderless && headerBorder }"
-            :style="{ position: 'sticky', top: 0, right: 0, zIndex: 1 }"
+            :style="{ position: 'sticky', top: 0, right: 0, zIndex: 2 }"
           >
             {{ i18n['actions'] }}
           </th>
+          <th
+            v-if="renderContextMenu"
+            class="ivu-table-column ivu-table-column-center"
+            :class="{ 'border-top' : !borderless && headerBorder }"
+            :style="{ position: 'sticky', top: 0, zIndex: 2 }"
+          />
         </tr>
       </thead>
       <tbody
@@ -69,7 +75,7 @@
           <td
             v-if="withSelect"
             class="ivu-table-column ivu-table-column-center"
-            :style="{ position: 'sticky', left: 0 }"
+            :style="{ position: 'sticky', left: 0, zIndex: 1 }"
             @click.stop
           >
             <div class="ivu-table-cell ivu-table-cell-with-selection">
@@ -86,9 +92,23 @@
             @tag-click="$emit('tag-click', $event)"
           />
           <td
+            v-if="renderContextMenu"
+            :style="{ position: 'sticky', right: 0, zIndex: 1 }"
+            @click.stop
+          >
+            <span
+              class="table-context-menu"
+              :style="{ position: 'absolute', top: 'calc(50% - 14px)', right: '10px' }"
+            >
+              <RenderCell
+                :render="renderContextMenu(row)"
+              />
+            </span>
+          </td>
+          <td
             v-if="renderActions"
             class="ivu-table-column ivu-table-column-center"
-            :style="{ position: 'sticky', right: 0 }"
+            :style="{ position: 'sticky', right: 0, zIndex: 1 }"
             @click.stop
           >
             <div class="ivu-table-cell">
@@ -152,6 +172,11 @@ export default {
       default: true
     },
     renderActions: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    renderContextMenu: {
       type: Function,
       required: false,
       default: null
@@ -232,7 +257,14 @@ export default {
   },
   methods: {
     scrollToTop () {
-      this.$refs.wrapper.scrollTop = 0
+      this.scrollTo(0)
+    },
+    scrollTo (top, left) {
+      this.$refs.wrapper.scrollTop = top
+
+      if (typeof left === 'number') {
+        this.$refs.wrapper.scrollLeft = left
+      }
     },
     onRowClick (row) {
       setTimeout(() => {
@@ -257,6 +289,16 @@ export default {
 </script>
 
 <style lang="scss">
+.table-context-menu {
+  display: none;
+}
+
+.ivu-table-row:hover {
+  .table-context-menu {
+    display: inline;
+  }
+}
+
 .ivu-table {
   overflow: auto;
   width: 100%;
@@ -299,9 +341,9 @@ export default {
 }
 
 .table-wrapper::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
   border-top: 1px solid #dee2e6;
-  height: 4px;
+  height: 5px;
   z-index: 12;
 }
 

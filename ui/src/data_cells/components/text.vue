@@ -1,10 +1,13 @@
 <template>
   <div
-    v-popover="popoverParams"
     class="text-cell"
     :class="{ 'pre-wrap': !truncate }"
   >
-    {{ truncatedValue }}
+    {{ truncatedValue }}<span
+      v-if="isTruncated"
+      :key="value"
+      v-popover="popoverParams"
+    >...</span>
   </div>
 </template>
 
@@ -22,12 +25,17 @@ export default {
       default: ''
     }
   },
+  data () {
+    return {
+      truncateWithoutDots: true
+    }
+  },
   computed: {
     popoverParams () {
       return {
         content: this.value,
         trigger: 'mouseenter',
-        disabled: true, // !this.isTruncated,
+        disabled: !this.isTruncated,
         bodyStyle: {
           maxWidth: '350px',
           overflowY: 'auto',

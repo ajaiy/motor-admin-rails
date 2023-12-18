@@ -4,7 +4,9 @@ module Motor
   class Admin < ::Rails::Engine
     config.custom_html = ''
 
-    if !Motor.development? && !Rails.env.production?
+    ActiveSupport.cache_format_version = Rails.version.to_f
+
+    if !Motor.development? && Rails.env.development?
       config.eager_load_paths.delete(File.expand_path('../../app/controllers', __dir__))
       config.eager_load_paths.delete(File.expand_path('../../app/controllers/concerns', __dir__))
       config.eager_load_paths.delete(File.expand_path('../../app/models', __dir__))
