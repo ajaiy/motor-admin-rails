@@ -10,7 +10,7 @@
         style="padding: 10px 8px"
       >
         <RouterLink
-          :to="{ name: 'query', params: { id: query.id } }"
+          :to="{ name: 'query', params: { id: query.id }, query: queryVariables }"
           class="text-dark"
         >
           <b>{{ item.title || query.name }}</b>
@@ -31,7 +31,7 @@
     </div>
   </div>
   <div
-    class="ivu-card-body p-0 overflow-auto"
+    class="ivu-card-body p-0"
     :style="{ height: heightsMap[item.size[2]] }"
   >
     <Spin

@@ -17,6 +17,11 @@ module Motor
                                               query: request_params[:query],
                                               variables: request_params[:variables],
                                               headers: { 'Authorization' => "Bearer #{current_user_jwt}" })
+      response.to_hash.each do |key, (value)|
+        next if key.casecmp('transfer-encoding').zero?
+
+        headers[key] = value
+      end
 
       self.response_body = response.body
       self.status = response.code.to_i
@@ -33,7 +38,7 @@ module Motor
 
       payload = { uid: current_user.id, email: current_user.email, exp: JWT_TTL.from_now.to_i }
 
-      JWT.encode(payload, Rails.application.secrets.secret_key_base)
+      JWT.encode(payload, Rails.application.credentials.secret_key_base)
     end
 
     def request_params

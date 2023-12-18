@@ -47,6 +47,7 @@
         v-else
         :value="row[column.key]"
         :format="column.format"
+        :is-table="true"
         :type="column.type"
         @tag-click="$emit('tag-click', { key: column.key, value: $event })"
       />
@@ -90,7 +91,7 @@ export default {
   computed: {
     polymorphicModel () {
       if (this.column.reference?.polymorphic) {
-        const polymorphicName = this.row[this.column.reference.name + '_type']
+        const polymorphicName = this.row[this.column.reference.foreign_key.replace(/_id$/, '_type')]
 
         return modelNameMap[underscore(polymorphicName).replace(/:{2}/g, '/')]
       } else {
