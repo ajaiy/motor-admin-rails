@@ -18,13 +18,7 @@ export default {
     },
     truncatedValue () {
       if (this.isTruncated) {
-        let value = this.value.slice(0, MAX_LENGTH)
-
-        if (!this.truncateWithoutDots) {
-          value = value.concat('...')
-        }
-
-        return value
+        return this.value.slice(0, MAX_LENGTH) + '...'
       } else {
         return this.value
       }

@@ -9,7 +9,7 @@
         v-model:data="dataVariables"
         :variables="variablesToRender"
         class="mx-2 pb-3"
-        @submit="reload"
+        @submit="$refs.layout.reload()"
       />
       <DashboardLayout
         ref="layout"
@@ -75,11 +75,6 @@ export default {
     this.loadDashboard()
   },
   methods: {
-    reload () {
-      this.$nextTick(() => {
-        this.$refs.layout.reload()
-      })
-    },
     assignDefaultVariables () {
       this.variablesToRender.forEach((variable) => {
         this.dataVariables[variable.name] ||= variable.default_value

@@ -11,12 +11,7 @@ module Motor
     has_many :alerts, dependent: :destroy
 
     attribute :preferences, default: -> { ActiveSupport::HashWithIndifferentAccess.new }
-
-    if Rails.version.to_f >= 7.1
-      serialize :preferences, coder: HashSerializer
-    else
-      serialize :preferences, HashSerializer
-    end
+    serialize :preferences, HashSerializer
 
     scope :active, -> { where(deleted_at: nil) }
 

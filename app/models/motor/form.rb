@@ -11,12 +11,7 @@ module Motor
     has_many :tags, through: :taggable_tags, class_name: 'Motor::Tag'
 
     attribute :preferences, default: -> { ActiveSupport::HashWithIndifferentAccess.new }
-
-    if Rails.version.to_f >= 7.1
-      serialize :preferences, coder: HashSerializer
-    else
-      serialize :preferences, HashSerializer
-    end
+    serialize :preferences, HashSerializer
 
     scope :active, -> { where(deleted_at: nil) }
   end

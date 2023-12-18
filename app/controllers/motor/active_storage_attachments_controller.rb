@@ -9,13 +9,7 @@ module Motor
     load_and_authorize_resource :attachment, class: 'ActiveStorage::Attachment', parent: false
 
     def create
-      blob = if file_params[:key]
-               ActiveStorage::Blob.create!(file_params)
-             else
-               ActiveStorage::Blob.create_and_upload!(file_params)
-             end
-
-      @attachment.assign_attributes(blob: blob, record: record)
+      @attachment.assign_attributes(blob: ActiveStorage::Blob.create_and_upload!(file_params), record: record)
       @attachment.assign_attributes(record_type: '', record_id: 0) unless record
 
       if @attachment.save(validate: false)
@@ -42,20 +36,12 @@ module Motor
     end
 
     def file_params
-      attrs = params.require(:data).require(:file).permit(:io, :filename, :key,
-                                                          :checksum, :byte_size,
-                                                          :content_type).to_h.symbolize_keys
-
-      return attrs if params.dig(:data, :file, :base64).blank?
-
-      attrs[:io] = StringIO.new(Base64.urlsafe_decode64(params[:data][:file][:base64]))
-
-      attrs
+      params.require(:data).require(:file).permit(:io, :filename).to_h.symbolize_keys
     end
 
     def attachment_params
       if params[:data].present?
-        params.require(:data).except(:file).permit(:name, :record_type, :record_id)
+        params.require(:data).except(:file).permit!
       else
         {}
       end

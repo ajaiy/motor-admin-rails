@@ -38,7 +38,6 @@
         :scroll-to-top-on-data-update="false"
         :with-select="modelHasActions"
         :render-actions="tableActions.length && canUseTableActions ? renderActions : null"
-        :render-context-menu="modelHasActions && (!tableActions.length || !canUseTableActions) ? renderContextMenu : null"
         :click-rows="!!model.primary_key"
         @sort-change="applySort"
         @row-click="onRowClick"
@@ -87,6 +86,7 @@
 
 <script>
 import api from 'api'
+import { reactive } from 'vue'
 import { modelNameMap } from '../scripts/schema'
 import DataTable from 'data_tables/components/table'
 import ResourceNavbar from './navbar'
@@ -108,8 +108,7 @@ const defaultPaginationParams = {
   pageSizeOpts: [20, 50, 100, 250, 500]
 }
 
-const itemsCountCache = new Map()
-const rowsCache = new Map()
+const itemsCountCache = reactive({})
 
 export default {
   name: 'ResourceTable',
@@ -239,12 +238,8 @@ export default {
     itemsCountCacheKey () {
       return JSON.stringify({
         ...this.queryParams,
-        queryPath: this.queryPath,
         page: {}
       })
-    },
-    rowsCacheKey () {
-      return JSON.stringify({ queryPath: this.queryPath, ...this.queryParams })
     },
     selectedRows () {
       return this.rows.filter((row) => row._selected)
@@ -376,17 +371,9 @@ export default {
     }
   },
   mounted () {
-    this.assignFromQueryParams(this.$route.query)
     this.assignCachedItemsCount()
-    this.assignCachedRows()
-
-    this.loadDataAndCount({ loading: !this.rows.length }).then(() => {
-      if (typeof history.state.tableScrollTop === 'number') {
-        this.$nextTick(() => {
-          this.$refs.table.scrollTo(history.state.tableScrollTop, history.state.tableScrollLeft)
-        })
-      }
-    })
+    this.assignFromQueryParams(this.$route.query)
+    this.loadDataAndCount()
   },
   methods: {
     widthLessThan,
@@ -452,31 +439,17 @@ export default {
       this.paginationParams.current = parseInt(query.page) || 1
       this.paginationParams.pageSize = parseInt(query.per_page) || parseInt(localStorage.getItem(`motor:${this.model.name}:pageSize`) || '0') || defaultPaginationParams.pageSize
     },
-    loadDataAndCount (opts = { loading: true }) {
+    loadDataAndCount () {
       return Promise.all([
-        this.loadData(opts),
+        this.loadData(),
         this.loadItemsCount()
       ])
     },
     assignCachedItemsCount () {
-      const count = itemsCountCache.get(this.itemsCountCacheKey)
+      const count = itemsCountCache[this.itemsCountCacheKey]
 
       if (count) {
         this.paginationParams.total = count
-      }
-    },
-    assignCachedRows () {
-      const rows = rowsCache.get(this.rowsCacheKey)
-
-      if (rows) {
-        this.isLoading = false
-        this.isReloading = false
-
-        this.rows = rows
-
-        this.$nextTick(() => {
-          this.$refs.table.scrollTo(history.state.tableScrollTop, history.state.tableScrollLeft)
-        })
       }
     },
     onPageChange () {
@@ -570,33 +543,10 @@ export default {
       }).then((result) => {
         this.paginationParams.total = result.data.meta.count
 
-        this.$nextTick(() => {
-          itemsCountCache.set(this.itemsCountCacheKey, result.data.meta.count)
-        })
+        itemsCountCache[this.itemsCountCacheKey] = result.data.meta.count
       }).catch((error) => {
         console.error(error)
       })
-    },
-    renderContextMenu (row) {
-      return (h) => {
-        return h(ResourceActions, {
-          resources: [row],
-          label: '',
-          resourceName: this.model.name,
-          withButtons: false,
-          withDropdown: true,
-          buttonType: 'default',
-          buttonGhost: false,
-          buttonIcon: 'md-more',
-          buttonSize: 'small',
-          onStartAction: () => {
-            this.isLoading = true
-          },
-          onFinishAction: (action) => {
-            this.onFinishAction(action)
-          }
-        })
-      }
     },
     renderActions (row) {
       return (h) => {
@@ -616,17 +566,13 @@ export default {
         })
       }
     },
-    loadData ({ loading } = { loading: true }) {
-      this.isLoading = loading
+    loadData () {
+      this.isLoading = true
 
       return api.get(this.queryPath, {
         params: this.queryParams
       }).then((result) => {
         this.rows = result.data.data
-
-        this.$nextTick(() => {
-          rowsCache.set(this.rowsCacheKey, result.data.data)
-        })
       }).catch((error) => {
         if (error.response) {
           this.$Message.error(truncate(error.response.data.errors.join('\n'), 70))
